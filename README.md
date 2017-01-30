@@ -117,8 +117,11 @@ your code easily to it. Therefore you have to have some possibility to easily
 * update your mockdata
 * and use that exact same mockdata
 
-This will also force you not write agains specific values in your tests, but
+This will also force you not to write agains specific values in your tests, but
 against a value location in your mock data:
+
+
+**You must not copy mockdata manually into your tests!**
 
 
 
@@ -228,43 +231,121 @@ some kind of mapping or a large value space, you might be better of with a so ca
 This helps you to not write too much test code but yet you can still recognize for parameters
 you methods fail.
 
+## When Tests get too complex
+After knowing the foundation of writing automated tests now, we know the basics to do standard
+craftsman work. What makes testing not only an art but also lifts your coding skills is the
+necessity to decide which interface you want to test against with. Very often it is the best,
+to simply test against the component you needed to implement anyhow. Still you are fee to divide
+you code into private functions:
+```
+    // these functions can not be accessed fom outside directly,
+    // they are private.
+    function aFunction() {
+        ...
+    }
 
+    function anotherFunction() {
+        ...
+    }
 
+    module.exports = {
+        interfaceToTestAgainst: function(params) {
+            const value1 = aFunction()
+            const value2 = anotherFunction(params)
 
+            return value1 + value2
+        }
+    }
+```
 
-https://martinfowler.com/bliki/TestPyramid.html
-For angular you also need to test the markup of your Components. So similarily when you test the
-method of a service, you check for the outcome, you have to test if the compiled output of a directive
-looks as you exepct it. (See also https://docs.angularjs.org/guide/unit-testing)
-
-
-
-
-
-##
-* separation between "private functions" and interface
-* Break up code for easier testing
-* Parametrized Tests
-* red - green - cycle
-* evil review sample
-* tests must not depend on each other!
-* test strategy
-* mockdata
-* jasmine
- * when to use describe
- * beforeEach afterEach
- * Exclusive Tests (fit fdescribe), Turn out tests (xit xdescribe)
- * how to do mocking
- * testing asynchronious code
-
-
-
-## How should be tested
+But when you feel that you tests get too complicated or that there are aspects you can not test,
+then you should consider to split up your code into two separate units, which you can test separately:
 
 ```
-var x = 2;
-if (x == 2) {
-    console.log("doof");
+// Split out methods to be tested for themselves
+
+module.exports = {
+    aFunction: () => {}
+    anotherFunction: () => {}
 }
+
+// Original File
+const Methods = require('./file1')
+
+    module.exports = {
+        interfaceToTestAgainst: function(params) {
+            const value1 = Methods.aFunction()
+            const value2 = Methods.anotherFunction(params)
+
+            return value1 + value2
+        }
+    }
 ```
+
+
+So use your intuition for interfaces whisely.
+
+
+## Mockdata
+If you want your tests to fail if your REST-Services change you better use realworld mockdata that
+can be easily updated to modified REST-Interfaces. This solves Mockingjay.js, which provides a
+local webserver, that has two modes:
+* a READONLY-Mode which ensures that mock data gets provided as you stored it
+* an OVERWRITE-Mode which allows you to forward all requests against the Mockingjay-Server to your
+  original REST-Service
+
+This allows you to write Integrationtests or simply a set of REST-Calls that stores Mockdata for
+you. With that you can simply update your Mockdata if necessary. In the meantime you can use that
+server to run your tests reproducably.
+
+## Additional Jasmine Tipps
+###Exclusive Testing
+If you have a huge Test Suite, what we hope you have, running your TestSuite can take sevaral
+minutes. Nevertheless we want to encurage you, to keep your tests runnning in an endless loop
+meanwhile you are developing, so that you get immediate feedback if your codechange worked or not.
+To make this much less cumbersome, you can use "fdescribe" or "fit" to only run the tests that
+reflect the state  of the service you are working on:
+```
+const MyService = require('./my-service')
+describe('MyService', () => {
+    it('this test will not be executed', () => {
+        ...
+    })
+
+    fdescribe('myMethod', () => {
+        it('this test will be executed', () => {
+            ...
+        })
+        it('this test will also be executed', () => {
+            ...
+        })
+    })
+
+    describe('myOtherMethod', () => {
+        it('this test will also not be executed', () => {
+            ...
+        })
+        fit('but this test will be executed too', () => {
+            ...
+        })
+    })
+})
+```
+Similar to fdescribe and fit, you can turn of single tests or descriptions with "xdescribe" and
+"xit". **Be careful that you do not commit fdescribe or fit to your repository. Use git hooks to prevent that**
+
+### Testing asynchrone Code
+When you need to test for example an http-request or other asynchrone code use the 'done'-callback
+provided by jasmine:
+```
+    it('should call done in the future', (done) => {
+        new Promise ((resolve, reject) => {
+            resolve(42)
+        }).then((value) => {
+            expect(value).toEqual(42)
+            done()
+        })
+    })
+```
+Any later test will only be executed after a timeout or you called done.
 
