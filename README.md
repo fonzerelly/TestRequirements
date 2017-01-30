@@ -109,6 +109,19 @@ error accidently by hardcoding stuff in the initialization of a service.
 Therefor you have to make sure to randomize the order of you tests, so that
 you see such accidents as soon as possible.
 
+## Usage of realworld mockdata
+When you are implementing against a REST-API, it might change. What you want
+is to have tests that fail, if your REST-API changes, so that you can adapt
+your code easily to it. Therefore you have to have some possibility to easily
+* grap mockdata from your REST-API
+* update your mockdata
+* and use that exact same mockdata
+
+This will also force you not write agains specific values in your tests, but
+against a value location in your mock data:
+
+
+
 # Recommendations
 
 ## Test driven development
@@ -214,6 +227,7 @@ some kind of mapping or a large value space, you might be better of with a so ca
 ```
 This helps you to not write too much test code but yet you can still recognize for parameters
 you methods fail.
+
 
 
 
