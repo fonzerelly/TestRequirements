@@ -109,6 +109,22 @@ error accidently by hardcoding stuff in the initialization of a service.
 Therefor you have to make sure to randomize the order of you tests, so that
 you see such accidents as soon as possible.
 
+## Small Valid commits only
+When you start a new feature, you must relay on the work of your team mates.
+If one of your team mates commited code that does not compile, it would be you
+to fix it and make it compile. Otherwise you would not be able to keep on working.
+This is the reason why there is continious integration, to prevent or at least
+shorten the period of time, in which a repository is in such a corrupted state.
+The same goes with tests. If your team mate intorduced a but so that the test
+suite is failing, it would need you to fix it. If you would start to work on your
+feature, ignoring failing tests, how can you ever be sure that it is really the
+bug of your team mate that corrupted the test suite and not your change.
+So make sure that everytime you commit, the tests should be green. But this
+should not mean, that you are only allowed to do Big-Bang-Commits. Instead if
+you want to safe a state and can not be sure that your tests are working yet,
+it is okay to turn of tests by xit for this short period of time. But make sure
+to turn them on again later.
+
 ## Usage of realworld mockdata
 When you are implementing against a REST-API, it might change. What you want
 is to have tests that fail, if your REST-API changes, so that you can adapt
@@ -367,3 +383,12 @@ provided by jasmine:
 ```
 Any later test will only be executed after a timeout or you called done.
 
+## Debug with git bisect
+Sometimes your test suite is not meshed together close enough and a bug sneaks in without
+realizing it. Suddenly it is there and nobody saw it comming and it is also hard to say
+from which part of your application it is comming. Then git bisect comes to the rescue:
+
+git bisect is a subset of git commands, that allow you to jump between commits in a given
+range and mark each commit by "good" or "bad", so that it helps you nailing down in which
+commit the bug was introduced. If git bisect is not familiar to you, please have a look
+at the [bisect-kata](https://github.com/bartekbrak/bisect-kata).
