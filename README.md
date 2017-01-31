@@ -137,7 +137,7 @@ describe('MyService', () => {
     })
 })
 ```
-Please see also section (MockData)[#mockdata] in the Recommendations
+Please see also section [MockData](#mockdata) in the Recommendations
 
 
 
