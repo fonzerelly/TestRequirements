@@ -117,8 +117,28 @@ your code easily to it. Therefore you have to have some possibility to easily
 * update your mockdata
 * and use that exact same mockdata
 
-This will also force you not write agains specific values in your tests, but
+This will also force you not to write agains specific values in your tests, but
 against a value location in your mock data:
+```
+const MyService = require('./my-service')
+describe('MyService', () => {
+    let mockData
+    beforeEach(inject($httpBackend) => {
+        mockData = loadMockdata('http://my-rest-service/my-data')
+	$httpBackend
+            .when('GET', 'http://my-rest-service/my-data')
+            .respond(mockData);
+    })
+
+    describe('myMethod', () => {
+        it('should return name of data', () => {
+            expect(MyService.myMethod()).toEqual(mockData.name);
+	})
+    })
+})
+```
+Please see also section (MockData)[#mockdata] in the Recommendations
+
 
 
 
@@ -227,6 +247,9 @@ some kind of mapping or a large value space, you might be better of with a so ca
 ```
 This helps you to not write too much test code but yet you can still recognize for parameters
 you methods fail.
+
+## Mock data<a name="mockdata"></a>
+lalala
 
 
 
